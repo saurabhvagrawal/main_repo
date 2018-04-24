@@ -1,0 +1,7 @@
+# EC2 instance variable
+
+
+keypair: id_rsa
+instance_type: t2.micro
+image: ami-bf5540df
+region: us-west-1

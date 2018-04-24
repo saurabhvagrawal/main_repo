@@ -1,0 +1,14 @@
+- name: Launch Instance
+  ec2:
+    key_name: "{{keypair}}"
+    group: default
+    instance_type: "{{instance_type}}"
+    image: "{{ image }}"
+    wait: true
+    region: "{{region}}"
+#         aws_access_key: AKIAJ6C7NTHPFSVZMH7A
+#         aws_secret_key: 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
+#    register: ec2
+#- name: Print all ec2 variables
+#  debug: var=ec2
+
