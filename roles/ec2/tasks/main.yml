@@ -1,3 +1,40 @@
+---
+- name: New VPC
+  ec2_vpc_net:
+    name: "{{vpc_name}}"
+    cidr_block: "{{cidr_block}}"
+    region: "{{region}}"
+    state: "present"
+  register: new_vpc
+
+- name: To get the VPC ID 
+  set_fact:
+    vpc_id: "{{new_vpc.vpc.id}}"
+- name: TO Create Subnet in VPC
+  ec2_vpc_subnet:
+    state: "present"
+    vpc_id: "{{vpc_id}}"
+    cidr: "{{my_cidr}}"
+    az: "{{az}}"
+    region: "{{region}}"
+    resource_tags:
+      Name: "Public Subnet"
+  register: public_subnet
+- name: to get subnet id in a variable
+  set_fact:
+    public_subnet_id: "{{public_subnet.subnet.id}}"
+
+- name: Create Internet gateway
+  ec2_vpc_igw:
+    vpc_id: "{{vpc_id}}"
+    region: "{{region}}"  
+    state: "present"
+  register: my_vpc_igw
+
+- name: Set Internet Gateway ID in variable
+  set_fact:
+    igw_id: "{{ my_vpc_igw.gateway_id }}" 
+
 - name: Launch Instance
   ec2:
     key_name: "{{keypair}}"
@@ -6,6 +43,15 @@
     image: "{{ image }}"
     wait: true
     region: "{{region}}"
+    count: "{{count}}"
+    vpc_subnet_id: "{{public_subnet_id}}"
+  register: ec2
+
+- name: Deleting EC2 
+  ec2_instance_facts:
+    region: "{region{}}"
+
+    
 #         aws_access_key: AKIAJ6C7NTHPFSVZMH7A
 #         aws_secret_key: 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
 #    register: ec2

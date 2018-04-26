@@ -6,8 +6,8 @@
   vars:
     keypair: id_rsa
     instance_type: t2.micro
-    image: ami-bf5540df
-    region: us-west-1
+    image: ami-467ca739
+    region: us-east-1
   tasks:
     - name: Launch Instance
       ec2:
@@ -18,7 +18,7 @@
          wait: true
          region: "{{region}}"
 #         aws_access_key: "{{AWS_ACCESS_KEY_ID}}"
- #        aws_secret_key: "{{AWS_SECRET_ACCESS_KEY}}"
+#         aws_secret_key: "{{AWS_SECRET_ACCESS_KEY}}"
       register: ec2
     - name: Print all ec2 variables
       debug: var=ec2

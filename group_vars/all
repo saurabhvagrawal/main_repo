@@ -1,7 +1,12 @@
 # EC2 instance variable
+vpc_name: myvpc
+cidr_block: 10.0.0.0/16
+my_cidr: 10.0.0.0/24
+az: us-east-1a
+count: 1
 
 
 keypair: id_rsa
 instance_type: t2.micro
-image: ami-bf5540df
-region: us-west-1
+image: ami-43a15f3e
+region: us-east-1
