@@ -44,12 +44,19 @@
     wait: true
     region: "{{region}}"
     count: "{{count}}"
+    instance_tags:
+      ec2: myec2 
     vpc_subnet_id: "{{public_subnet_id}}"
   register: ec2
+#  notify:
+#    - Remove EC2
 
-- name: Deleting EC2 
-  ec2_instance_facts:
-    region: "{region{}}"
+- name: Remove Instances
+  ec2:
+    region: "{{region}}"
+    state: "absent"
+    instance_ids: "{{ec2.instance_ids}}"
+
 
     
 #         aws_access_key: AKIAJ6C7NTHPFSVZMH7A

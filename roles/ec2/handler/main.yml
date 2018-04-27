@@ -1,0 +1,8 @@
+---
+- name: Remove EC2
+  ec2:
+    key_name: "{{keypair}}"
+    region: "{{region}}"
+    instance_tags:
+      ec2: myec2
+    state: 'absent'
