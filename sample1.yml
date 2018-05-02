@@ -5,3 +5,11 @@
   gather_facts: false
   roles: 
    - ec2	
+
+- name: Docker installation
+  hosts: mygroups
+  become: true
+  become_user: root
+  become_method: sudo
+  roles:
+    - docker

@@ -20,6 +20,7 @@
     resource_tags:
       Name: "Public Subnet"
   register: public_subnet
+
 - name: to get subnet id in a variable
   set_fact:
     public_subnet_id: "{{public_subnet.subnet.id}}"
@@ -31,6 +32,32 @@
     state: "present"
   register: my_vpc_igw
 
+- name: Create a route table
+  ec2_vpc_route_table:
+    region: "{{region}}"
+#    propagating_vgw_ids: yes
+    vpc_id: "{{vpc_id}}"
+    state: "present"
+    subnets: "{{public_subnet_id}}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{my_vpc_igw.gateway_id}}"
+
+- name: Create a security group
+  ec2_group:
+    name: my_security_group
+    description: first security group
+    vpc_id: "{{vpc_id}}"
+    region: "{{region}}"
+    rules:
+      - proto: all
+        cidr_ip: 0.0.0.0/0
+  register: new_security_group
+
+- name: to get the security group id
+  set_fact:
+    security_group: "{{new_security_group.group_id}}"
+
 - name: Set Internet Gateway ID in variable
   set_fact:
     igw_id: "{{ my_vpc_igw.gateway_id }}" 
@@ -38,25 +65,48 @@
 - name: Launch Instance
   ec2:
     key_name: "{{keypair}}"
-    group: default
+    group_id: "{{security_group}}"
+    vpc_subnet_id: "{{ public_subnet_id}}}"
     instance_type: "{{instance_type}}"
     image: "{{ image }}"
     wait: true
     region: "{{region}}"
     count: "{{count}}"
+    assign_public_ip: yes
     instance_tags:
-      ec2: myec2 
+      ec2: "{{tag}}" 
     vpc_subnet_id: "{{public_subnet_id}}"
-  register: ec2
+  register: var
+
+
+- name: Add new instance to ansible group
+  add_host: 
+    name: "{{item.public_ip}}"
+    groups: "mygroups"
+    ec2_id: "{{item.id}}"
+  with_items: "{{ var.instances}}"
+
+- name: Wait for instances to boot up
+  wait_for:
+    host: "{{item.public_ip}}"
+    port: 22
+    delay: 30
+    timeout: 300
+    state: started
+  with_items: "{{var.instances}}"
 #  notify:
 #    - Remove EC2
 
-- name: Remove Instances
-  ec2:
-    region: "{{region}}"
-    state: "absent"
-    instance_ids: "{{ec2.instance_ids}}"
+#- name: Remove Instances
+#  ec2:
+#    region: "{{region}}"
+#    state: "absent"
+#    instance_ids: "{{var.instance_ids}}"
 
+
+#- name: Wait for ssh to come up
+#  wait_for: host={{item.private_ip}} port=22 search_regex=OpenSSH delay=210 timeout=420 state= started
+#  with_items: var.instances
 
     
 #         aws_access_key: AKIAJ6C7NTHPFSVZMH7A

@@ -1,0 +1,24 @@
+---
+- name: Install docker and python setup tools
+  yum:
+    name: "{{item}}"
+    update_cache: yes
+  with_items:
+    - python-setuptools
+    - docker
+
+- name: start docker
+  service:
+    name: docker
+    state: running
+
+- name: Install pypi
+  easy_install: name=pip
+
+- name: Install docker-py to latest
+  pip:
+    name: "{{item}}"
+    state: latest
+    extra_args: "{{pip_extra_args}}"
+  with_items:
+    - docker-py

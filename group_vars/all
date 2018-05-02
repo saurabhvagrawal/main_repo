@@ -4,9 +4,9 @@ cidr_block: 10.0.0.0/16
 my_cidr: 10.0.0.0/24
 az: us-east-1a
 count: 1
-
+tag: myec2
 
 keypair: id_rsa
 instance_type: t2.micro
-image: ami-43a15f3e
+image: ami-467ca739
 region: us-east-1
